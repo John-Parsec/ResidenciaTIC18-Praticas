@@ -32,7 +32,7 @@ struct date{
 };
 
 struct viagem{
-    short int tipo = 0; // 0 = ida, 1 = volta
+    short int tipo = 1; // 1 = ida, 2 = volta
     date data_viagem;
     hora horario;
     float preco = 80;
@@ -57,7 +57,6 @@ void venderPassagem(viagem &v, int poltrona, string cpf, string nome, int idade)
 int informacoes(int qst, vector<viagem> vIda, vector<viagem> vVolta);
 int menu(vector<viagem> &vIda, vector<viagem> &vVolta, int &qtdeViagensIda, int &qtdeViagensVolta);
 
-
 int main(void){
     int result;
     int qtdeViagensIda = 5, qtdeViagensVolta = 5;
@@ -70,7 +69,6 @@ int main(void){
 
     return 0;
 }
-
 
 // 1. Qual o total arrecadado para uma determinada viagem.
 float totalArrecadadoViagem(viagem v){
@@ -139,17 +137,26 @@ void cadastrarViagem(vector<viagem> &vs, int tipo, date data, hora horario){
 
 int cadastroDeViagem(vector<viagem> &vIda, vector<viagem> &vVolta, int &qtdeViagensIda, int &qtdeViagensVolta){
     int tipo;
+    string dataStr, horarioStr;
     date data;
     hora horario;
 
-    cout << "Tipo de viagem (0 = ida, 1 = volta): ";
+    cout << "Tipo de viagem (1 = ida, 2 = volta): ";
     cin >> tipo;
     cout << "Data da viagem (dd/mm/aaaa): ";
-    cin >> data.dia >> data.mes >> data.ano;
-    cout << "Horário da viagem (hh:mm): ";
-    cin >> horario.hora >> horario.minuto;
+    cin >> dataStr;
+    
+    data.dia = stoi(dataStr.substr(0,2));
+    data.mes = stoi(dataStr.substr(3,2));
+    data.ano = stoi(dataStr.substr(6,4));
 
-    if(tipo == 0){
+    cout << "Horário da viagem (hh:mm): ";
+    cin >> horarioStr;
+
+    horario.hora = stoi(horarioStr.substr(0,2));
+    horario.minuto = stoi(horarioStr.substr(3,2));
+
+    if(tipo == 1){
         if(qtdeViagensIda == 0){
             cout << "Número máximo de viagens de ida atingido" << endl;
             return -1;
@@ -157,7 +164,7 @@ int cadastroDeViagem(vector<viagem> &vIda, vector<viagem> &vVolta, int &qtdeViag
 
         cadastrarViagem(vIda, tipo, data, horario);
     }
-    else if (tipo == 1){
+    else if (tipo == 2){
         if(qtdeViagensVolta == 0){
             cout << "Número máximo de viagens de volta atingido" << endl;
             return -1;
@@ -182,24 +189,36 @@ void venderPassagem(viagem &v, int poltrona, string cpf, string nome, int idade)
 
 int vendaDePassagem(vector<viagem> &vIda, vector<viagem> &vVolta){
     int tipo, poltrona, idade, viagemId;
-    int i = 1;
+    int i = 0;
     string cpf, nome;
-    cout << "Tipo de viagem (0 = ida, 1 = volta): ";
+    cout << "Tipo de viagem (1 = ida, 2 = volta): ";
     cin >> tipo;
 
-    if(tipo == 0){
+    if(tipo == 1){
         cout << "Viagens de ida disponíveis: " << endl;
         for(auto it = vIda.begin(); it != vIda.end(); it++){
-            cout << i++ << " - " << it->data_viagem.dia << "/" << it->data_viagem.mes << "/" << it->data_viagem.ano << " - " << it->horario.hora << ":" << it->horario.minuto << endl;
+            cout << ++i << " - " << it->data_viagem.dia << "/" << it->data_viagem.mes << "/" << it->data_viagem.ano << " - " << it->horario.hora << ":" << it->horario.minuto << endl;
         }
+        
+        if(i == 0){
+            cout << "Nenhuma viagem cadastrada" << endl;
+            return -1;
+        }
+
         cout << "Número da viagem: ";
         cin >> viagemId;
     }
-    else if (tipo == 1){
+    else if (tipo == 2){
         cout << "Viagens de volta disponíveis: " << endl;
         for(auto it = vVolta.begin(); it != vVolta.end(); it++){
-            cout << i++ << " - " << it->data_viagem.dia << "/" << it->data_viagem.mes << "/" << it->data_viagem.ano << " - " << it->horario.hora << ":" << it->horario.minuto << endl;
+            cout << ++i << " - " << it->data_viagem.dia << "/" << it->data_viagem.mes << "/" << it->data_viagem.ano << " - " << it->horario.hora << ":" << it->horario.minuto << endl;
         }
+
+        if(i == 0){
+            cout << "Nenhuma viagem cadastrada" << endl;
+            return -1;
+        }
+
         cout << "Número da viagem: ";
         cin >> viagemId;
     }
@@ -210,19 +229,24 @@ int vendaDePassagem(vector<viagem> &vIda, vector<viagem> &vVolta){
     
     viagemId--;
 
+    if(viagemId < 0 || viagemId > i-1){
+        cout << "Viagem inválida" << endl;
+        return -1;
+    }
+
     cout << "Número da poltrona: ";
     cin >> poltrona;
-    cout << "CPF: ";cout << "Total arrecadado para uma determinada viagem" << endl;
+    cout << "CPF: ";
     cin >> cpf;
     cout << "Nome: ";
     cin >> nome;
     cout << "Idade: ";
     cin >> idade;
 
-    if(tipo == 0){
+    if(tipo == 1){
         venderPassagem(vIda[viagemId], poltrona, cpf, nome, idade);
     }
-    else if (tipo == 1){
+    else if (tipo == 2){
         venderPassagem(vVolta[viagemId], poltrona, cpf, nome, idade);
     }
 
@@ -232,23 +256,28 @@ int vendaDePassagem(vector<viagem> &vIda, vector<viagem> &vVolta){
 int informacoes(int qst, vector<viagem> vIda, vector<viagem> vVolta){
     int tipo, mes, viagemId, poltrona;
     hora h;
-    int i = 1;
+    int i = 0;
 
     if(qst == 1){
-        cout << "Qual o tipo de viagem (0 = ida, 1 = volta)? ";
+        cout << "Qual o tipo de viagem (1 = ida, 2 = volta)? ";
         cin >> tipo;
 
-        if(tipo != 0 && tipo != 1){
+        if(tipo != 1 && tipo != 2){
             cout << "Tipo de viagem inválido" << endl;
             return -1;
         }
 
         cout << "Qual a viagem? " << endl;
         for(auto it = vIda.begin(); it != vIda.end(); it++){
-            cout << i++ << " - " << it->data_viagem.dia << "/" << it->data_viagem.mes << "/" << it->data_viagem.ano << " - " << it->horario.hora << ":" << it->horario.minuto << endl;
+            cout << ++i << " - " << it->data_viagem.dia << "/" << it->data_viagem.mes << "/" << it->data_viagem.ano << " - " << it->horario.hora << ":" << it->horario.minuto << endl;
         }
 
         cin >> viagemId;
+
+        if(viagemId < 0 || viagemId > i-1){
+            cout << "Viagem inválida" << endl;
+            return -1;
+        }
 
         cout << "Total arrecadado: " << totalArrecadadoViagem(vIda[viagemId-1]) << endl;
     }
@@ -259,20 +288,26 @@ int informacoes(int qst, vector<viagem> vIda, vector<viagem> vVolta){
         cout << "Total arrecadado: " << totalArrecadadoMes(vIda, mes) + totalArrecadadoMes(vVolta, mes) << endl;
     }
     else if(qst == 3){
-        cout << "Qual o tipo de viagem (0 = ida, 1 = volta)? ";
+        cout << "Qual o tipo de viagem (1 = ida, 2 = volta)? ";
         cin >> tipo;
 
-        if(tipo != 0 && tipo != 1){
+        if(tipo != 1 && tipo != 2){
             cout << "Tipo de viagem inválido" << endl;
             return -1;
         }
 
         cout << "Qual a viagem? " << endl;
+        i = 0;
         for(auto it = vIda.begin(); it != vIda.end(); it++){
-            cout << i++ << " - " << it->data_viagem.dia << "/" << it->data_viagem.mes << "/" << it->data_viagem.ano << " - " << it->horario.hora << ":" << it->horario.minuto << endl;
+            cout << ++i << " - " << it->data_viagem.dia << "/" << it->data_viagem.mes << "/" << it->data_viagem.ano << " - " << it->horario.hora << ":" << it->horario.minuto << endl;
         }
 
         cin >> viagemId;
+
+        if(viagemId < 0 || viagemId > i-1){
+            cout << "Viagem inválida" << endl;
+            return -1;
+        }
 
         cout << "Qual a poltrona? ";
         cin >> poltrona;
@@ -280,12 +315,12 @@ int informacoes(int qst, vector<viagem> vIda, vector<viagem> vVolta){
         cout << "Nome do passageiro: " << nomePassageiro(vIda[viagemId-1], poltrona) << endl;
     }
     else if(qst == 4){
-        cout << "Qual o tipo de viagem (0 = ida, 1 = volta)? ";
+        cout << "Qual o tipo de viagem (1 = ida, 2 = volta)? ";
         cin >> tipo;
 
-        if(tipo == 0)
+        if(tipo == 1)
             h = horarioMaisRentavel(vIda);
-        else if (tipo == 1)
+        else if (tipo == 2)
             h = horarioMaisRentavel(vVolta);
         else{
             cout << "Tipo de viagem inválido" << endl;
@@ -302,8 +337,10 @@ int informacoes(int qst, vector<viagem> vIda, vector<viagem> vVolta){
 }
 
 
-int menu(vector<viagem> &vIda, vector<viagem> &vVolta, int &qtdeViagensIda, int &qtdeViagensVolta){
+int menu(vector<viagem> &vIda, vector<viagem> &vVolta, int &qtdeViagensIda, int &qtdeViagensVolta){    
     short int opt;
+
+    system("clear");
 
     cout << "1. Cadastrar viagem" << endl;
     cout << "2. Vender passagem" << endl;

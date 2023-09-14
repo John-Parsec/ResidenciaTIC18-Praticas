@@ -102,10 +102,150 @@ float mediaIdadePassageiros(vector<viagem> vs){
     return total/nmr_passageiros;
 }
 
+int cadastroDeViagem(vector<viagem> &vIda, vector<viagem> &vVolta, int &qtdeViagensIda, int &qtdeViagensVolta){
+    int tipo;
+    date data;
+    hora horario;
+
+    cout << "Tipo de viagem (0 = ida, 1 = volta): ";
+    cin >> tipo;
+    cout << "Data da viagem (dd/mm/aaaa): ";
+    cin >> data.dia >> data.mes >> data.ano;
+    cout << "Horário da viagem (hh:mm): ";
+    cin >> horario.hora >> horario.minuto;
+
+    if(tipo == 0){
+        if(qtdeViagensIda == 0){
+            cout << "Número máximo de viagens de ida atingido" << endl;
+            return -1;
+        }
+
+        cadastrarViagem(vIda, tipo, data, horario);
+    }
+    else if (tipo == 1){
+        if(qtdeViagensVolta == 0){
+            cout << "Número máximo de viagens de volta atingido" << endl;
+            return -1;
+        }
+
+        cadastrarViagem(vVolta, tipo, data, horario);
+    }
+    else{
+        cout << "Tipo de viagem inválido" << endl;
+        return -1;
+    }
+
+    return 1;
+}
+
+void cadastrarViagem(vector<viagem> &vs, int tipo, date data, hora horario){
+    viagem v;
+    v.tipo = tipo;
+    v.data_viagem = data;
+    v.horario = horario;
+    vs.push_back(v);
+}
+
+int vendaDePassagem(vector<viagem> &vIda, vector<viagem> &vVolta){
+    int tipo, poltrona, idade, viagemId;
+    string cpf, nome;
+    cout << "Tipo de viagem (0 = ida, 1 = volta): ";
+    cin >> tipo;
+
+    if(tipo == 0){
+        cout << "Viagens de ida disponíveis: " << endl;
+        for(auto it = vIda.begin(); it != vIda.end(); it++){
+            cout << it->data_viagem.dia << "/" << it->data_viagem.mes << "/" << it->data_viagem.ano << " - " << it->horario.hora << ":" << it->horario.minuto << endl;
+        }
+        cout << "Número da viagem: ";
+        cin >> viagemId;
+    }
+    else if (tipo == 1){
+        cout << "Viagens de volta disponíveis: " << endl;
+        for(auto it = vVolta.begin(); it != vVolta.end(); it++){
+            cout << it->data_viagem.dia << "/" << it->data_viagem.mes << "/" << it->data_viagem.ano << " - " << it->horario.hora << ":" << it->horario.minuto << endl;
+        }
+        cout << "Número da viagem: ";
+        cin >> viagemId;
+    }
+    else{
+        cout << "Tipo de viagem inválido" << endl;
+        return -1;
+    }
+
+    cout << "Número da poltrona: ";
+    cin >> poltrona;
+    cout << "CPF: ";
+    cin >> cpf;
+    cout << "Nome: ";
+    cin >> nome;
+    cout << "Idade: ";
+    cin >> idade;
+
+    if(tipo == 0){
+        venderPassagem(vIda[viagemId], poltrona, cpf, nome, idade);
+    }
+    else if (tipo == 1){
+        venderPassagem(vVolta[viagemId], poltrona, cpf, nome, idade);
+    }
+
+    return 1;
+}
+
+void venderPassagem(viagem &v, int poltrona, string cpf, string nome, int idade){
+    v.poltronas[poltrona-1].ocupada = true;
+    v.poltronas[poltrona-1].cpf = cpf;
+    v.poltronas[poltrona-1].nome = nome;
+    v.poltronas[poltrona-1].idade = idade;
+}
+
+int menu(vector<viagem> &vIda, vector<viagem> &vVolta, int &qtdeViagensIda, int &qtdeViagensVolta){
+    short int opt;
+
+    cout << "1. Cadastrar viagem" << endl;
+    cout << "2. Vender passagem" << endl;
+    cout << "3. Total arrecadado para uma determinada viagem" << endl;
+    cout << "4. Total arrecadado em um determinado mês" << endl;
+    cout << "5. Nome do passageiro de uma determinada poltrona P de uma determinada viagem" << endl;
+    cout << "6. Horário de viagem mais rentável" << endl;
+    cout << "7. Média de idade dos passageiros" << endl;
+    cout << "0. Sair" << endl;
+    cout << "\nOpção: ";
+    cin >> opt;
+
+    switch(opt){
+        case 0:
+            return 0;
+        case 1:
+            return cadastroDeViagem(vIda, vVolta, qtdeViagensIda, qtdeViagensVolta);
+        case 2:
+            return vendaDePassagem(vIda, vVolta);
+        case 3:
+            break;
+        case 4:
+            break;
+        case 5:
+            break;
+        case 6:
+            break;
+        case 7:
+            break;
+        case 8:
+            break;
+    }
+
+    return 1;
+}
+
 int main(void){
+    int result;
+    int qtdeViagensIda = 5, qtdeViagensVolta = 5;
+    vector<viagem> viagensIda;
+    vector<viagem> viagensVolta;
 
-
-
+    do{
+        result = menu(viagensIda, viagensVolta, qtdeViagens, qtdeViagensVolta);
+    }while(result != 0);
 
     return 0;
 }

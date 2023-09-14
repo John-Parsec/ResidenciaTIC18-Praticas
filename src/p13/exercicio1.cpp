@@ -244,7 +244,7 @@ int main(void){
     vector<viagem> viagensVolta;
 
     do{
-        result = menu(viagensIda, viagensVolta, qtdeViagens, qtdeViagensVolta);
+        result = menu(viagensIda, viagensVolta, qtdeViagensIda, qtdeViagensVolta);
     }while(result != 0);
 
     return 0;

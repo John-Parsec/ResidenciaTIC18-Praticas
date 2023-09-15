@@ -1,5 +1,8 @@
 #include <iostream>
 #include <vector>
+#include <cstdlib>
+#include<unistd.h>
+#include <algorithm>
 
 using namespace std;
 /*
@@ -57,9 +60,49 @@ void venderPassagem(viagem &v, int poltrona, string cpf, string nome, int idade)
 int informacoes(int qst, vector<viagem> vIda, vector<viagem> vVolta);
 int menu(vector<viagem> &vIda, vector<viagem> &vVolta, int &qtdeViagensIda, int &qtdeViagensVolta);
 
+
+//Funcao para gerar dados randomicos - Escolha a opcao 1 no menu
+/*
+A funcao recebe o vector de viagens de ida e volta, a quantidade de viagens de ida e volta
+e a data da viagem em 3 inteiros (dia, mes e ano)
+*/
+void geraDados(vector<viagem> &vIda, vector<viagem> &vVolta, int &qtdeViagensIda, int &qtdeViagensVolta, int dia, int mes, int ano){
+    date data;
+    hora horario;
+
+    data.dia = dia;
+    data.mes = mes;
+    data.ano = ano;
+
+    horario.hora = 0;
+    horario.minuto = 0;
+
+    for(int i = 0; i < qtdeViagensIda; i++){
+        cadastrarViagem(vIda, 1, data, horario);
+        horario.hora++;
+    }
+
+    for(int i = 0; i < qtdeViagensVolta; i++){
+        cadastrarViagem(vVolta, 2, data, horario);
+        horario.hora++;
+    }
+
+    for(int i = 0; i < 5; i ++){
+        for(int j = 0; j < 40; j++){
+            string cpfIda = "123456789";
+            string nomeIda = "João";
+            string cpfVolta = "182798368";
+            string nomeVolta = "Ana";
+            venderPassagem(vIda[i], j+1, cpfIda, nomeIda, 20);
+            venderPassagem(vVolta[i], j+1, cpfVolta, nomeVolta, 23);
+        }
+    }
+}
+
+
 int main(void){
     int result;
-    int qtdeViagensIda = 5, qtdeViagensVolta = 5;
+    int qtdeViagensIda = 1, qtdeViagensVolta = 1;
     vector<viagem> viagensIda;
     vector<viagem> viagensVolta;
 
@@ -127,12 +170,37 @@ float mediaIdadePassageiros(vector<viagem> vs){
     return total/nmr_passageiros;
 }
 
+bool ordem(viagem a, viagem b){
+    if(a.data_viagem.ano < b.data_viagem.ano)
+        return true;
+    else if(a.data_viagem.ano == b.data_viagem.ano){
+        if(a.data_viagem.mes < b.data_viagem.mes)
+            return true;
+        else if(a.data_viagem.mes == b.data_viagem.mes){
+            if(a.data_viagem.dia < b.data_viagem.dia)
+                return true;
+            else if(a.data_viagem.dia == b.data_viagem.dia){
+                if(a.horario.hora < b.horario.hora)
+                    return true;
+                else if(a.horario.hora == b.horario.hora){
+                    if(a.horario.minuto < b.horario.minuto)
+                        return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 void cadastrarViagem(vector<viagem> &vs, int tipo, date data, hora horario){
+    /*ordenar o vetor pela data*/
     viagem v;
     v.tipo = tipo;
     v.data_viagem = data;
     v.horario = horario;
+
     vs.push_back(v);
+    sort(vs.begin(), vs.end(), ordem);
 }
 
 int cadastroDeViagem(vector<viagem> &vIda, vector<viagem> &vVolta, int &qtdeViagensIda, int &qtdeViagensVolta){
@@ -143,6 +211,16 @@ int cadastroDeViagem(vector<viagem> &vIda, vector<viagem> &vVolta, int &qtdeViag
 
     cout << "Tipo de viagem (1 = ida, 2 = volta): ";
     cin >> tipo;
+
+    if(tipo == 1)
+        qtdeViagensIda--;
+    else if (tipo == 2)
+        qtdeViagensVolta--;
+    else{
+        cout << "Tipo de viagem inválido" << endl;
+        return -1;
+    }
+
     cout << "Data da viagem (dd/mm/aaaa): ";
     cin >> dataStr;
     
@@ -167,14 +245,11 @@ int cadastroDeViagem(vector<viagem> &vIda, vector<viagem> &vVolta, int &qtdeViag
     else if (tipo == 2){
         if(qtdeViagensVolta == 0){
             cout << "Número máximo de viagens de volta atingido" << endl;
+            system("pause");
             return -1;
         }
 
         cadastrarViagem(vVolta, tipo, data, horario);
-    }
-    else{
-        cout << "Tipo de viagem inválido" << endl;
-        return -1;
     }
 
     return 1;
@@ -336,19 +411,19 @@ int informacoes(int qst, vector<viagem> vIda, vector<viagem> vVolta){
     return 1;
 }
 
-
 int menu(vector<viagem> &vIda, vector<viagem> &vVolta, int &qtdeViagensIda, int &qtdeViagensVolta){    
     short int opt;
 
     system("clear");
 
-    cout << "1. Cadastrar viagem" << endl;
-    cout << "2. Vender passagem" << endl;
-    cout << "3. Total arrecadado para uma determinada viagem" << endl;
-    cout << "4. Total arrecadado em um determinado mês" << endl;
-    cout << "5. Nome do passageiro de uma determinada poltrona P de uma determinada viagem" << endl;
-    cout << "6. Horário de viagem mais rentável" << endl;
-    cout << "7. Média de idade dos passageiros" << endl;
+    cout << "1. Gerar Dados" << endl;
+    cout << "2. Cadastrar viagem" << endl;
+    cout << "3. Vender passagem" << endl;
+    cout << "4. Total arrecadado para uma determinada viagem" << endl;
+    cout << "5. Total arrecadado em um determinado mês" << endl;
+    cout << "6. Nome do passageiro de uma determinada poltrona P de uma determinada viagem" << endl;
+    cout << "7. Horário de viagem mais rentável" << endl;
+    cout << "8. Média de idade dos passageiros" << endl;
     cout << "0. Sair" << endl;
     cout << "\nOpção: ";
     cin >> opt;
@@ -357,18 +432,21 @@ int menu(vector<viagem> &vIda, vector<viagem> &vVolta, int &qtdeViagensIda, int 
         case 0:
             return 0;
         case 1:
-            return cadastroDeViagem(vIda, vVolta, qtdeViagensIda, qtdeViagensVolta);
+            geraDados(vIda, vVolta, qtdeViagensIda, qtdeViagensVolta, 12, 10, 2023);
+            return 1;
         case 2:
-            return vendaDePassagem(vIda, vVolta);
+            return cadastroDeViagem(vIda, vVolta, qtdeViagensIda, qtdeViagensVolta);
         case 3:
-            return informacoes(1, vIda, vVolta);
+            return vendaDePassagem(vIda, vVolta);
         case 4:
-            return informacoes(2, vIda, vVolta);
+            return informacoes(1, vIda, vVolta);
         case 5:
-            return informacoes(3, vIda, vVolta);
+            return informacoes(2, vIda, vVolta);
         case 6:
-            return informacoes(4, vIda, vVolta);
+            return informacoes(3, vIda, vVolta);
         case 7:
+            return informacoes(4, vIda, vVolta);
+        case 8:
             return informacoes(5, vIda, vVolta);
     }
 

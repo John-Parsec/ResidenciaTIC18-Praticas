@@ -53,7 +53,7 @@ void imprimeEmpregados(empregado *empregados, int n){
 
 int main(void){
     empregado empregados[50];
-    int qtdeEmpregados = 5;
+    int qtdeEmpregados = 25;
 
     geraDados(empregados, qtdeEmpregados);
 
@@ -64,7 +64,6 @@ int main(void){
     reajustaDezPorcento(empregados, qtdeEmpregados);
 
     imprimeEmpregados(empregados, qtdeEmpregados);
-
 
     return 0;
 }

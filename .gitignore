@@ -34,3 +34,4 @@
 # Pastas
 .vscode/
 src/*/output/
+src/*/*/output/
